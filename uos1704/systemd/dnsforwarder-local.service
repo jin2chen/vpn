@@ -6,7 +6,7 @@ After=network.target ss-redir.service
 [Service]
 Type=simple
 LimitNOFILE=32768
-ExecStart=/usr/local/opt/dnsforwarder/bin/dnsforwarder -f /etc/dnsforwarder/config
+ExecStart=/usr/local/opt/dnsforwarder/bin/dnsforwarder -q -f /etc/dnsforwarder/config
 ExecStartPost=/usr/local/bin/dns-resolve start
 ExecStopPost=/usr/local/bin/dns-resolve stop
 
