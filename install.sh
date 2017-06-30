@@ -11,7 +11,7 @@ cd $ROOT_PATH
 apt_get install tree unzip
 
 echo "==Install geoip..."
-apt_get install xtables-addons-common libtext-csv-xs-perl
+apt_get install xtables-addons-common xtables-addons-dkms libtext-csv-xs-perl
 if [[ ! -f $ROOT_PATH/geoip.lock ]]; then
 	mkdir -p /usr/share/xt_geoip
 	mkdir -p /tmp/geoip
