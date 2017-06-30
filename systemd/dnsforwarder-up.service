@@ -1,0 +1,13 @@
+[Unit]
+Description=DNS Forwarder
+Documentation=https://github.com/holmium/dnsforwarder/wiki
+After=network.target ss-redir.service
+
+[Service]
+Type=simple
+LimitNOFILE=32768
+ExecStart=/usr/local/opt/dnsforwarder/bin/dnsforwarder -f /etc/dnsforwarder/upstream
+
+[Install]
+WantedBy=multi-user.target
+

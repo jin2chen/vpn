@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+function backup_file {
+	if [[ "x$1" = "x" ]]; then
+		echo "Params error."
+		exit 1
+	fi
+
+	if [[ -f "$1" && ! -f "$1.bak" ]]; then
+		cp -f "$1" "$1.bak"
+	elif [[ -f "$1.bak" ]]; then
+		cp -f "$1.bak" "$1"
+	fi
+}
+
+function apt_get {
+	apt -y "$@"
+#	DEBIAN_FRONTEND=noninteractive \
+#		apt-get --option "Dpkg::Options::=--force-confold" --assume-yes --no-install-recommends "$@"
+}
+
+function get_ip {
+	local nic
+	nic=${1-eth0}
+	echo $(ip -4 addr show $nic | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+}
+

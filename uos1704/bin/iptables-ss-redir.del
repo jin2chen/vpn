@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+iptables -t nat -D PREROUTING -s 10.10.10.0/24 -p tcp -j SHADOWSOCKS
+iptables -t nat -D OUTPUT -p tcp -j SHADOWSOCKS
+iptables -t nat -F SHADOWSOCKS
+iptables -t nat -X SHADOWSOCKS
+
+# PPP
+IP=$(ip -4 addr show enp0s3 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+iptables -t nat -D POSTROUTING -s 10.10.10.0/24 -j MASQUERADE
+iptables -t nat -D PREROUTING -d 10.10.10.1/32 -j DNAT --to-destination $IP
+#iptables -D FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu # For windows client
+exit 0

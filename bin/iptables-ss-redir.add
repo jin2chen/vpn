@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# Create new chain
+iptables -t nat -N SHADOWSOCKS
+
+# Ignore your shadowsocks server's addresses
+# It's very IMPORTANT, just be careful.
+iptables -t nat -A SHADOWSOCKS -d 47.90.29.113 -j RETURN # vpn-server
+iptables -t nat -A SHADOWSOCKS -d 112.74.21.143 -j RETURN # vpn-relay
+iptables -t nat -A SHADOWSOCKS -d 222.246.129.80 -j RETURN # local-isp-dns-server
+
+# Ignore LANs and any other addresses you'd like to bypass the proxy
+# See Wikipedia and RFC5735 for full list of reserved networks.
+# See ashi009/bestroutetb for a highly optimized CHN route list.
+iptables -t nat -A SHADOWSOCKS -d 0.0.0.0/8 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 10.0.0.0/8 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 127.0.0.0/8 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 169.254.0.0/16 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 172.16.0.0/12 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 192.168.0.0/16 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 224.0.0.0/4 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 240.0.0.0/4 -j RETURN
+iptables -t nat -A SHADOWSOCKS -m geoip --dst-cc CN -j RETURN
+
+# Anything else should be redirected to shadowsocks's local port
+iptables -t nat -A SHADOWSOCKS -p tcp -j REDIRECT --to-ports 1234
+
+# Apply the rules
+iptables -t nat -A PREROUTING -s 10.10.10.0/24 -p tcp -j SHADOWSOCKS
+iptables -t nat -A OUTPUT -p tcp -j SHADOWSOCKS
+
+
+# PPP
+IP=$(ip -4 addr show enp0s3 | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+iptables -t nat -A POSTROUTING -s 10.10.10.0/24 -j MASQUERADE
+iptables -t nat -A PREROUTING -d 10.10.10.1/32 -j DNAT --to-destination $IP
+#iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu # For windows client
+exit 0
